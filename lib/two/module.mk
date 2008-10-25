@@ -1,2 +1,2 @@
-        libs := libtwo
-libtwo_cfiles = two.c
+         libs := libtwo
+libtwo_cfiles := two.c

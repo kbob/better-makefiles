@@ -1,4 +1,6 @@
    dirs := lib programs
-libtype := static
+# libtype := static
+
+default: all
 
 include makefiles/toplevel.mk

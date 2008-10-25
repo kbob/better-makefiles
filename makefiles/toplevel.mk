@@ -1,8 +1,6 @@
 # -*-makefile-*-
 
-    DIRS := . makefiles
-PROGRAMS :=
-    LIBS :=
+CPPFLAGS := -Iinclude
 
 # Will we build static or dynamic libraries?
 
@@ -12,10 +10,13 @@ ifeq "$(libtype)" "static"
 else ifeq "$(libtype)" "dynamic"
   libext := so
 else
-  $(error unknown libtype "$(libtype)")
+ $(error unknown libtype "$(libtype)")
 endif
 
-default:
+    DIRS := . makefiles
+PROGRAMS :=
+    LIBS :=
+   TESTS :=
 
 include makefiles/rules.mk
 
@@ -24,26 +25,25 @@ include makefiles/rules.mk
 #   implement BUILD/HOST/TARGET split.
 #   optionally split SRCDIR and OBJDIR.
 
-# XXX make the test target actually do something.
-# XXX rename foo_cfiles to foo_sources.
+# XXX rename foo_cfiles to foo_sources, split into C and C++.
 # XXX auto-distinguish C vs C++ link steps.
-# XXX document include file locations.
+# XXX document include file locations. (./include)
 # XXX automatically create Makefile in subdirectories.
-# XXX shared libraries don't actually work.  Set LD_LIBRARY_PATH?
+# XXX rename module.mk to Module.make.
+# XXX could derive the location of mkrules from the path to toplevel...
+# XXX install rules?
 
-CPPFLAGS = -Iinclude
-
-default: all
-#	$(error Please select a target.  "make help" for suggestions)
+.PHONY: default help all test tests build programs libs clean
 
 help:
 	@echo 'Common Targets'
-	@echo '    all      - builds everything, runs all tests'
-	@echo '    test     - runs all tests'
-	@echo '    build    - builds everything'
-	@echo '    libs     - builds all libraries'
-	@echo '    programs - builds all programs'
-	@echo '    clean    - removes generated files'
+	@echo '    all (default) - build everything, run all tests'
+	@echo '    test          - run all tests'
+	@echo '    build         - build everything'
+	@echo '    programs      - build all programs'
+	@echo '    libs          - build all libraries'
+	@echo '    tests         - build all tests'
+	@echo '    clean         - remove generated files'
 	@echo ''
 	@echo 'Individual Programs'
 	@$(foreach p, $(PROGRAMS), echo '    $(patsubst ./%,%,$p)';)
@@ -51,31 +51,35 @@ help:
 	@echo 'Individual Libraries'
 	@$(foreach l, $(LIBS),     echo '    $(patsubst ./%,%,$l)';)
 	@echo ''
+	@echo 'Individual Tests'
+	@$(foreach t, $(TESTS),    echo '    $(patsubst ./%,%,$t)';)
+	@echo ''
 
-.PHONY: default help all test build libs programs clean
 all:	build test
-build:	libs programs
-libs:	$(LIBS)
-programs: $(PROGRAMS)
-test:
-	@echo -n "Testing..."
-	@sleep 0.3
-	@echo -n ' 1'
-	@sleep 0.3
-	@echo -n ' 2'
-	@sleep 0.3
-	@echo -n ' 3'
-	@sleep 0.3
-	@echo .
 
-junk = *~ *.o *.so *.a .*.d a.out core
+test:
+	@$(foreach t, $(TESTS), \
+	    echo 'Test $t'; \
+	    $t;)
+
+build:	libs programs tests
+
+programs: $(PROGRAMS)
+
+libs:	$(LIBS)
+
+tests:	$(TESTS)
+
+junk := *~ *.o *.so *.a .*.d a.out core
 clean:
-	rm -f $(patsubst ./%,%,$(PROGRAMS) $(LIBS))
+	rm -f $(patsubst ./%,%,$(PROGRAMS))
+	rm -f $(patsubst ./%,%,$(LIBS))
+	rm -f $(patsubst ./%,%,$(TESTS))
 	@$(foreach d, $(DIRS), \
-            echo 'rm -f [junk in $(subst ./,,$d)]';)
-	@$(foreach d, $(DIRS), \
+            echo 'rm -f [junk in $(subst ./,,$d)]'; \
             rm -f $(subst ./,,$(foreach x, $(junk), $d/$x));)
 
+# C source dependency generation.
 .%.d %/.%.d: %.c
 	@rm -f "$@"
 	@$(CC) -M -MP -MT '$*.o $@' -MF $@ $(CPPFLAGS) $< || rm -f "$@"
