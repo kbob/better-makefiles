@@ -1,0 +1,1 @@
+dirs := one two
