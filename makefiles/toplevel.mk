@@ -4,6 +4,17 @@
 PROGRAMS :=
     LIBS :=
 
+# Will we build static or dynamic libraries?
+
+ libtype ?= dynamic
+ifeq "$(libtype)" "static"
+  libext := a
+else ifeq "$(libtype)" "dynamic"
+  libext := so
+else
+  $(error unknown libtype "$(libtype)")
+endif
+
 default:
 
 include makefiles/rules.mk
@@ -13,17 +24,17 @@ include makefiles/rules.mk
 #   implement BUILD/HOST/TARGET split.
 #   optionally split SRCDIR and OBJDIR.
 
+# XXX make the test target actually do something.
 # XXX rename foo_cfiles to foo_sources.
 # XXX auto-distinguish C vs C++ link steps.
-# XXX make shared libraries instead of static.
-# XXX make the shared/static decision parameterized.
 # XXX document include file locations.
 # XXX automatically create Makefile in subdirectories.
+# XXX shared libraries don't actually work.  Set LD_LIBRARY_PATH?
 
 CPPFLAGS = -Iinclude
 
-default:
-	$(error Please select a target.  "make help" for suggestions)
+default: all
+#	$(error Please select a target.  "make help" for suggestions)
 
 help:
 	@echo 'Common Targets'
@@ -57,7 +68,7 @@ test:
 	@sleep 0.3
 	@echo .
 
-junk = *~ *.o .*.d a.out core
+junk = *~ *.o *.so *.a .*.d a.out core
 clean:
 	rm -f $(patsubst ./%,%,$(PROGRAMS) $(LIBS))
 	@$(foreach d, $(DIRS), \

@@ -19,7 +19,7 @@ $(foreach v, $(module_vars), $(eval $(call assert_simple, $v)))
 # Collect the subdirectories and targets.
     DIRS += $(dirs:%=$d%)
 PROGRAMS += $(programs:%=$d%)
-    LIBS += $(libs:%=$d%.a)
+    LIBS += $(libs:%=$d%.$(libext))
 
 # Template for a program.
 define program_template
@@ -27,7 +27,7 @@ define program_template
  $$(eval $$(call assert_simple, $(1)_libs))
  $(2)_cfiles := $$($(1)_cfiles:%=$d%)
  $(2)_ofiles := $$($(2)_cfiles:.c=.o)
-   $(2)_libs := $$($(1)_libs:=.a)
+   $(2)_libs := $$($(1)_libs:=.$(libext))
       CFILES += $$($(2)_cfiles)
  $(2): $$($(2)_ofiles) $$($(2)_libs)
 	$$(strip $$(LINK.o) $$^ $$($(2)_ldlibs) $$(LDLIBS) -o $$@)
@@ -38,9 +38,14 @@ define lib_template
  $(2)_cfiles := $$($(1)_cfiles:%=$d%)
  $(2)_ofiles := $$($(2)_cfiles:%.c=%.o)
       CFILES += $$($(2)_cfiles)
- vpath $(1).a $$(dir $2)
- $(2).a: $$($(2)_ofiles)
+ vpath $(1).$$(libext) $$(dir $2)
+ ifeq "$$(libtype)" "static"
+  $(2).a: $$($(2)_ofiles)
 	$$(AR) crv $$@ $$?
+ else ifeq "$$(libtype)" "dynamic"
+  $(2).so: $$($(2)_ofiles)
+	$$(CC) -shared $$(LDFLAGS) $$(TARGET_ARCH) $$? -o $$@
+ endif
 endef
 
 $(foreach p, $(programs), $(eval $(call program_template,$p,$d$p)))
