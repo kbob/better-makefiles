@@ -1,5 +1,8 @@
-   dirs := lib programs
-# libtype := static
+            dirs := lib programs
+        programs := buildtool
+#        libtype := static
+
+buildtool_cfiles := buildtool.c
 
 default: all
 

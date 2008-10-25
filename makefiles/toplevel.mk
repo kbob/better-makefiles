@@ -20,19 +20,6 @@ PROGRAMS :=
 
 include makefiles/rules.mk
 
-# Ways to make this more complicated:
-#   per-target rules, variables, and overrides.
-#   implement BUILD/HOST/TARGET split.
-#   optionally split SRCDIR and OBJDIR.
-
-# XXX rename foo_cfiles to foo_sources, split into C and C++.
-# XXX auto-distinguish C vs C++ link steps.
-# XXX document include file locations. (./include)
-# XXX automatically create Makefile in subdirectories.
-# XXX rename module.mk to Module.make.
-# XXX could derive the location of mkrules from the path to toplevel...
-# XXX install rules?
-
 .PHONY: default help all test tests build programs libs clean
 
 help:
@@ -75,6 +62,7 @@ clean:
 	rm -f $(patsubst ./%,%,$(PROGRAMS))
 	rm -f $(patsubst ./%,%,$(LIBS))
 	rm -f $(patsubst ./%,%,$(TESTS))
+	@echo '# junk = $(junk)'
 	@$(foreach d, $(DIRS), \
             echo 'rm -f [junk in $(subst ./,,$d)]'; \
             rm -f $(subst ./,,$(foreach x, $(junk), $d/$x));)

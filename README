@@ -1,0 +1,51 @@
+This project is an exploration of Makefiles.  It demonstrates how a
+hierarchy of makefiles can be designed to absolutely minimize the
+amount of per-file and per-directory noise.
+
+We draw on the ideas of Peter Miller's Recursive Make Considered
+Harmful[1]: Only one make instance runs, and it runs from the
+project's root directory.
+
+We also assume a current GNU toolchain and rely heavily on features of
+GNU make and GCC.
+
+The project-specific information is in Makefile in the project root
+and in a makefile called Dir.make in each directory.  Each of those
+can define any of four variables:
+
+  dirs           - a list of subdirectories make should traverse
+  programs       - a list of C programs in that directory
+  tests          - a set of standalone C test programs in that directory
+  libs           - a set of libraries in that directory
+
+For each library libfoo listed in libs, the makefile should define
+these variables.
+
+   libfoo_cfiles - a list of C source files in libfoo.
+
+For each program foo listed in programs, the makefile should 
+define these variables.
+
+   foo_cfiles    - a list of C source files in foo.
+   foo_libs      - a list of project libraries that foo links against.
+   
+For each test program foo listed in tests, the makefile should
+define these variables.
+
+   foo_cfiles    - a list of C source files in foo.
+   foo_libs      - a list of project libraries that foo links against.
+   foo_CPPFLAGS  - extra C preprocessor flags to compile foo.
+
+Makefile in the root directory MAY define libtype as either dynamic or
+static, to globally set the type of libraries built.  And Makefile
+MUST end by including makefiles/toplevel.mk .
+
+Here's an example.
+
+        programs := hello
+    hello_cfiles := hello.c
+
+    include makefiles/toplevel.mk
+
+--
+[1] http://miller.emu.id.au/pmiller/books/rmch/

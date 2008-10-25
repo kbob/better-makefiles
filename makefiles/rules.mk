@@ -12,9 +12,11 @@ define assert_simple
  endif
 endef
 
-# Change all dir/libfoo.so => -Ldir -lfoo; pass others unchanged.
+# Change all dir/libfoo.{so,a} => -Ldir -lfoo; pass others unchanged.
 define munge_prereqs
- $(foreach l, $(filter-out %.so,$1), $l) \
+ $(foreach l, $(filter-out %.a %.so,$1), $l) \
+ $(foreach l, $(filter %.a,$1), \
+              $(patsubst lib%.a, -L$(dir $l) -l%, $(notdir $l))) \
  $(foreach l, $(filter %.so,$1), \
               $(patsubst lib%.so, -L$(dir $l) -l%, $(notdir $l)))
 endef
@@ -58,6 +60,8 @@ define lib_template
    $(2)_ofiles := $$($(2)_cfiles:%.c=%.o)
         CFILES += $$($(2)_cfiles)
 
+ vpath $(1).$$(libext) $$(dir $2)
+
  ifeq "$$(libtype)" "static"
 
   # libfoo's static link rule
@@ -67,7 +71,6 @@ define lib_template
  else ifeq "$$(libtype)" "dynamic"
 
   export LD_LIBRARY_PATH = $$(dir $2):$(LD_LIBRARY_PATH)
-  vpath $(1).$$(libext) $$(dir $2)
 
   # libfoo's dynamic link rule
   $(2).so: $$($(2)_ofiles)
@@ -105,7 +108,7 @@ define dir_template
       tests :=
   _dirstack := $$d $$(_dirstack)
           d := $$d$1/
- include $$(d)module.mk
+ include $$(d)Dir.make
  include makefiles/rules.mk
           d := $$(firstword $$(_dirstack))
   _dirstack := $$(wordlist 2, $$(words $$(_dirstack)), $$(_dirstack))
