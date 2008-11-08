@@ -6,4 +6,4 @@ buildtool_cfiles := buildtool.c
 
 default: all
 
-include makefiles/toplevel.mk
+include makefiles/project-root.make

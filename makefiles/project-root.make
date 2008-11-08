@@ -18,7 +18,9 @@ PROGRAMS :=
     LIBS :=
    TESTS :=
 
-include makefiles/rules.mk
+include makefiles/functions.make
+include makefiles/templates.make
+include makefiles/directory.make
 
 .PHONY: default help all test tests build programs libs clean
 

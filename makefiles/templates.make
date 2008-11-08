@@ -1,35 +1,4 @@
-# caller is the makefile that included rules.mk.
-# d is the directory where caller lives.
-         extra := makefiles/toplevel.mk makefiles/rules.mk
-        caller := $(lastword $(filter-out $(extra), $(MAKEFILE_LIST)))
-             d := $(dir $(caller))
-# $(info From $(caller))
-
-# Evaluate to verify that a make variable is defined simply (nonrecursively).
-define assert_simple
- ifeq "$$(flavor $1)" "recursive"
-   $$(error $1 is defined recursively in $$(caller).  Use := )
- endif
-endef
-
-# Change all dir/libfoo.{so,a} => -Ldir -lfoo; pass others unchanged.
-define munge_prereqs
- $(foreach l, $(filter-out %.a %.so,$1), $l) \
- $(foreach l, $(filter %.a,$1), \
-              $(patsubst lib%.a, -L$(dir $l) -l%, $(notdir $l))) \
- $(foreach l, $(filter %.so,$1), \
-              $(patsubst lib%.so, -L$(dir $l) -l%, $(notdir $l)))
-endef
-
-# Verify that module variables are nonrecursive.
-   module_vars := dirs programs libs tests
-$(foreach v, $(module_vars), $(eval $(call assert_simple, $v)))
-
-# Collect the subdirectories and targets.
-          DIRS += $(dirs:%=$d%)
-      PROGRAMS += $(programs:%=$d%)
-          LIBS += $(libs:%=$d%.$(libext))
-         TESTS += $(tests:%=$d%)
+# -*-makefile-*-
 
 # Template for a program.
 define program_template
@@ -49,6 +18,7 @@ define program_template
                             $$($(2)_ldlibs) $$(LDLIBS) -o $$@)
 
 endef
+
 
 # Template for a library.
 define lib_template
@@ -79,6 +49,8 @@ define lib_template
  endif
 endef
 
+
+# Template for a test.
 define test_template
 
  # Verify that testfoo_cfiles and testfoo_libs are nonrecursive.
@@ -98,6 +70,7 @@ define test_template
 
 endef
 
+
 # Template for a subdirectory.
 define dir_template
 
@@ -109,14 +82,7 @@ define dir_template
   _dirstack := $$d $$(_dirstack)
           d := $$d$1/
  include $$(d)Dir.make
- include makefiles/rules.mk
+ include makefiles/directory.make
           d := $$(firstword $$(_dirstack))
   _dirstack := $$(wordlist 2, $$(words $$(_dirstack)), $$(_dirstack))
 endef
-
-# Expand the templates for all the programs, libs, tests, and dirs in
-# this module.
-$(foreach p, $(programs), $(eval $(call program_template,$p,$d$p)))
-$(foreach l, $(libs),     $(eval $(call     lib_template,$l,$d$l)))
-$(foreach t, $(tests),    $(eval $(call    test_template,$t,$d$t)))
-$(foreach i, $(dirs),     $(eval $(call     dir_template,$i,$d$i)))
