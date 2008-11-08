@@ -46,7 +46,7 @@ help:
 
 all:	build test
 
-test:
+test:	tests
 	@$(foreach t, $(TESTS), \
 	    echo 'Test $t'; \
 	    $t;)
