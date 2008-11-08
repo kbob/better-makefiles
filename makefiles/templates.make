@@ -56,6 +56,7 @@ define test_template
  # Verify that testfoo_cfiles and testfoo_libs are nonrecursive.
  $$(eval $$(call assert_simple, $(1)_cfiles))
  $$(eval $$(call assert_simple, $(1)_libs))
+ $$(eval $$(call assert_simple, $(1)_CPPFLAGS))
 
    $(2)_cfiles := $$($(1)_cfiles:%=$d%)
    $(2)_ofiles := $$($(2)_cfiles:.c=.o)
