@@ -19,6 +19,8 @@ endif
   TEST_SCRIPTS :=
  TEST_PROGRAMS :=
 
+          root :=
+
 include makefiles/functions.make
 include makefiles/templates.make
 include makefiles/directory.make
@@ -55,8 +57,8 @@ all:	build test
 
 test:	tests
 	@$(foreach t, $(TESTS), \
-	    echo 'Test $(patsubst ./%,%,$t)'; \
-	    $t;)
+	    echo 'Test $(patsubst ./%,%,$t)' && \
+	    $t &&) :
 
 build:	Makefiles libs programs tests
 
@@ -90,8 +92,14 @@ $(TEST_SCRIPTS): $(PROGRAMS)
 .%.d %/.%.d: %.y
 	@rm -f "$@"
 	@$(YACC.y) -o $*.c $<
-	@$(CC) -M -MP -MT '$*.o $@' $(CPPFLAGS) $*.c | sed 's/$*.c/$</' > $@ || rm -f "$@"
+	@$(CC) -M -MP -MT '$*.o $@' $(CPPFLAGS) $*.c | sed 's/$*.c/$</' > $@ \
+		|| rm -f "$@"
 	@rm -f $*.c
+
+%.o: %.y
+	$(YACC.y) -o $*.c $<
+	$(COMPILE.c) $(OUTPUT_OPTION) $*.c || { rm -f $*.c; false; }
+	rm $*.c
 
 .DELETE_ON_ERROR:
 
