@@ -1,2 +1,4 @@
+# -*-makefile-gmake-*-
+
 default %:
-	@$(MAKE) -C .. --no-print-directory $@
+	@$(MAKE) -C .. $@

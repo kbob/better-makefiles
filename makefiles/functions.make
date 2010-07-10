@@ -1,4 +1,4 @@
-# -*-makefile-*-
+# -*-makefile-gmake-*-
 
 # Evaluate to verify that a make variable is defined simply (nonrecursively).
 define assert_simple

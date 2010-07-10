@@ -1,4 +1,4 @@
-# -*-makefile-*-
+# -*-makefile-gmake-*-
 
 # caller is the current directory's makefile.
 # d is the directory where caller lives.

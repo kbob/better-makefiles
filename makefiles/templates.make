@@ -1,4 +1,4 @@
-# -*-makefile-*-
+# -*-makefile-gmake-*-
 
 # Template for a program.
 define program_template
