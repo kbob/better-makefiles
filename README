@@ -3,7 +3,7 @@ hierarchy of makefiles can be designed to absolutely minimize the
 amount of per-file and per-directory noise.
 
 We draw on the ideas of Peter Miller's Recursive Make Considered
-Harmful[1]: Only one make instance runs, and it runs from the
+Harmful[1]: Only one make instance runs, and it always runs from the
 project's root directory.
 
 We also assume a current GNU toolchain and rely heavily on features of
@@ -23,14 +23,14 @@ these variables.
 
    libfoo_cfiles - a list of C source files in libfoo.
 
-For each program foo listed in programs, the makefile should 
-define these variables.
+For each program foo listed in programs, the makefile should define
+these variables.
 
    foo_cfiles    - a list of C source files in foo.
    foo_libs      - a list of project libraries that foo links against.
    
-For each test program foo listed in tests, the makefile should
-define these variables.
+For each test program foo listed in tests, the makefile should define
+these variables.
 
    foo_cfiles    - a list of C source files in foo.
    foo_libs      - a list of project libraries that foo links against.
@@ -38,14 +38,14 @@ define these variables.
 
 Makefile in the root directory MAY define libtype as either dynamic or
 static, to globally set the type of libraries built.  And Makefile
-MUST end by including makefiles/toplevel.mk .
+MUST end by including makefiles/project-root.make .
 
 Here's an example.
 
         programs := hello
     hello_cfiles := hello.c
 
-    include makefiles/toplevel.mk
+    include makefiles/project-root.make
 
 --
 [1] http://miller.emu.id.au/pmiller/books/rmch/
