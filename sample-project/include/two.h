@@ -3,4 +3,6 @@
 
 extern void two(const char *);
 
+extern void two_a(void);
+
 #endif /* !TWO_INCLUDED */

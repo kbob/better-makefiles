@@ -3,6 +3,7 @@
 
 const char *one_b()
 {
+    two_a();
     return "This is one B.";
 }
 
