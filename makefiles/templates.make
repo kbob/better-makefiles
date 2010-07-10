@@ -40,7 +40,7 @@ define lib_template
 
  else ifeq "$$(libtype)" "dynamic"
 
-  export LD_LIBRARY_PATH = $$(dir $2):$(LD_LIBRARY_PATH)
+  LD_LIBRARY_PATH := $$(dir $2):$(LD_LIBRARY_PATH)
 
   # libfoo's dynamic link rule
   $(2).so: $$($(2)_ofiles)
@@ -76,10 +76,11 @@ endef
 define dir_template
 
  # Reset the module variables, then include the subdirectory's makefile.
-       dirs :=
-   programs :=
-       libs :=
-      tests :=
+          dirs :=
+      programs :=
+          libs :=
+  test_scripts :=
+ test_programs :=
   _dirstack := $$d $$(_dirstack)
           d := $$d$1/
  include $$(d)Dir.make

@@ -1,3 +1,5 @@
+        CPPFLAGS := -Iinclude
+
             dirs := lib programs
         programs := buildtool
 #        libtype := static

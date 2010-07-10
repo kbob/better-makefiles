@@ -1,4 +1,4 @@
-# -*-makefile-gmake-*-
+#!/usr/bin/make -*- makefile-gmake -*-
 
 default %:
 	@$(MAKE) -C .. $@

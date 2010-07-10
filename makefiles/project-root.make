@@ -1,6 +1,6 @@
-# -*-makefile-gmake-*-
+# -*- makefile-gmake -*-
 
-CPPFLAGS := -Iinclude
+MAKEFLAGS += -j
 
 # Will we build static or dynamic libraries?
 
@@ -16,11 +16,14 @@ endif
     DIRS := . makefiles
 PROGRAMS :=
     LIBS :=
-   TESTS :=
+   TEST_SCRIPTS :=
+   TEST_PROGRAMS :=
 
 include makefiles/functions.make
 include makefiles/templates.make
 include makefiles/directory.make
+
+TESTS := $(TEST_SCRIPTS) $(TEST_PROGRAMS)
 
 .PHONY: default help all test tests build programs libs clean
 
@@ -49,7 +52,7 @@ all:	build test
 test:	tests
 	@$(foreach t, $(TESTS), \
 	    echo 'Test $t'; \
-	    $t;)
+	    LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) $t;)
 
 build:	libs programs tests
 
@@ -68,6 +71,8 @@ clean:
 	@$(foreach d, $(DIRS), \
             echo 'rm -f [junk in $(subst ./,,$d)]'; \
             rm -f $(subst ./,,$(foreach x, $(junk), $d/$x));)
+
+$(TEST_SCRIPTS): $(PROGRAMS)
 
 # C source dependency generation.
 .%.d %/.%.d: %.c

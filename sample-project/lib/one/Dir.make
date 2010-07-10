@@ -1,5 +1,5 @@
             libs := libone
-           tests := test_1b bbtest
+   test_programs := test_1b bbtest
 
    libone_cfiles := one_a.c one_b.c
 
