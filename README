@@ -15,7 +15,8 @@ can define any of four variables:
 
   dirs           - a list of subdirectories make should traverse
   programs       - a list of C programs in that directory
-  tests          - a set of standalone C test programs in that directory
+  test_programs  - a set of standalone C test programs in that directory
+  test_scripts   - a set of test scripts in that directory
   libs           - a set of libraries in that directory
 
 For each library libfoo listed in libs, the makefile should define
@@ -40,12 +41,14 @@ Makefile in the root directory MAY define libtype as either dynamic or
 static, to globally set the type of libraries built.  And Makefile
 MUST end by including makefiles/project-root.make .
 
-Here's an example.
+Here's a very simple example.
 
         programs := hello
     hello_cfiles := hello.c
 
     include makefiles/project-root.make
+
+For a more interesting example, see the sample-project directory.
 
 --
 [1] http://miller.emu.id.au/pmiller/books/rmch/

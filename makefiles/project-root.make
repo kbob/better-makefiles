@@ -52,7 +52,7 @@ all:	build test
 test:	tests
 	@$(foreach t, $(TESTS), \
 	    echo 'Test $t'; \
-	    LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) $t;)
+	    $t;)
 
 build:	libs programs tests
 
