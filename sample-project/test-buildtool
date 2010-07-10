@@ -1,0 +1,4 @@
+#!/bin/sh
+
+./buildtool | grep -q boss || { echo Failed.; exit 1; }
+

@@ -75,14 +75,19 @@ endef
 # Template for a subdirectory.
 define dir_template
 
+$2/Makefile: makefiles/module-makefile
+	ln -s $3makefiles/module-makefile $$@
+
  # Reset the module variables, then include the subdirectory's makefile.
           dirs :=
       programs :=
           libs :=
   test_scripts :=
  test_programs :=
-  _dirstack := $$d $$(_dirstack)
-          d := $$d$1/
+     _dirstack := $$d $$(_dirstack)
+             d := $2/
+          root := $3
+
  include $$(d)Dir.make
  include makefiles/directory.make
           d := $$(firstword $$(_dirstack))

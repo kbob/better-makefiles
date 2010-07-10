@@ -1,23 +1,23 @@
 # -*- makefile-gmake -*-
 
-MAKEFLAGS += -j
+     MAKEFLAGS += -j
 
 # Will we build static or dynamic libraries?
 
  libtype ?= dynamic
 ifeq "$(libtype)" "static"
-  libext := a
+        libext := a
 else ifeq "$(libtype)" "dynamic"
-  libext := so
+        libext := so
 else
  $(error unknown libtype "$(libtype)")
 endif
 
-    DIRS := . makefiles
-PROGRAMS :=
-    LIBS :=
-   TEST_SCRIPTS :=
-   TEST_PROGRAMS :=
+          DIRS :=
+      PROGRAMS :=
+          LIBS :=
+  TEST_SCRIPTS :=
+ TEST_PROGRAMS :=
 
 include makefiles/functions.make
 include makefiles/templates.make
@@ -35,26 +35,30 @@ help:
 	@echo '    programs      - build all programs'
 	@echo '    libs          - build all libraries'
 	@echo '    tests         - build all tests'
+	@echo '    Makefiles     - make Makefiles in all subdirectories'
 	@echo '    clean         - remove generated files'
 	@echo ''
 	@echo 'Individual Programs'
-	@$(foreach p, $(PROGRAMS), echo '    $(patsubst ./%,%,$p)';)
+	@$(foreach p, $(PROGRAMS),      echo '    $(patsubst ./%,%,$p)';)
 	@echo ''
 	@echo 'Individual Libraries'
-	@$(foreach l, $(LIBS),     echo '    $(patsubst ./%,%,$l)';)
+	@$(foreach l, $(LIBS),          echo '    $(patsubst ./%,%,$l)';)
 	@echo ''
-	@echo 'Individual Tests'
-	@$(foreach t, $(TESTS),    echo '    $(patsubst ./%,%,$t)';)
+	@echo 'Individual Test Programs'
+	@$(foreach t, $(TEST_PROGRAMS), echo '    $(patsubst ./%,%,$t)';)
+	@echo ''
+	@echo 'Individual Test Scripts'
+	@$(foreach t, $(TEST_SCRIPTS), echo '    $(patsubst ./%,%,$t)';)
 	@echo ''
 
 all:	build test
 
 test:	tests
 	@$(foreach t, $(TESTS), \
-	    echo 'Test $t'; \
+	    echo 'Test $(patsubst ./%,%,$t)'; \
 	    $t;)
 
-build:	libs programs tests
+build:	Makefiles libs programs tests
 
 programs: $(PROGRAMS)
 
@@ -62,15 +66,19 @@ libs:	$(LIBS)
 
 tests:	$(TESTS)
 
-junk := *~ *.o *.so *.a .*.d a.out core
+Makefiles: $(patsubst ./%, %, $(DIRS:%=%/Makefile))
+
+junk := *~ *.o *.so *.a .*.d *.pyc a.out core TAGS $(JUNK)
 clean:
 	rm -f $(patsubst ./%,%,$(PROGRAMS))
 	rm -f $(patsubst ./%,%,$(LIBS))
-	rm -f $(patsubst ./%,%,$(TESTS))
-	@echo '# junk = $(junk)'
+	rm -f $(patsubst ./%,%,$(TEST_PROGRAMS))
+	rm -f $(patsubst ./%,%,$(YFILES:.y=.c))
+	@echo 'rm -f    $(junk)'; rm -f $(junk)
+	@echo '# junk = $(strip $(junk) Makefile)'
 	@$(foreach d, $(DIRS), \
             echo 'rm -f [junk in $(subst ./,,$d)]'; \
-            rm -f $(subst ./,,$(foreach x, $(junk), $d/$x));)
+            rm -f $(subst ./,,$(foreach x, $(junk), $d/$x) $d/Makefile);)
 
 $(TEST_SCRIPTS): $(PROGRAMS)
 
@@ -79,4 +87,13 @@ $(TEST_SCRIPTS): $(PROGRAMS)
 	@rm -f "$@"
 	@$(CC) -M -MP -MT '$*.o $@' -MF $@ $(CPPFLAGS) $< || rm -f "$@"
 
+.%.d %/.%.d: %.y
+	@rm -f "$@"
+	@$(YACC.y) -o $*.c $<
+	@$(CC) -M -MP -MT '$*.o $@' $(CPPFLAGS) $*.c | sed 's/$*.c/$</' > $@ || rm -f "$@"
+	@rm -f $*.c
+
+.DELETE_ON_ERROR:
+
 -include $(join $(dir $(CFILES)), $(patsubst %.c, .%.d, $(notdir $(CFILES))))
+-include $(join $(dir $(YFILES)), $(patsubst %.y, .%.d, $(notdir $(YFILES))))
